@@ -7,3 +7,4 @@ lib/
 # to emit src/client/*.tsx into lib/ and stray modules into src/.
 src/**/*.js
 src/**/*.d.ts
+/docs/
