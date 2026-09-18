@@ -1,5 +1,7 @@
 # dsh-tool-stats
 
+[![npm version](https://img.shields.io/npm/v/dsh-tool-stats)](https://www.npmjs.com/package/dsh-tool-stats) [![CI](https://github.com/hj01857655/dsh-tool-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/hj01857655/dsh-tool-stats/actions/workflows/ci.yml)
+
 Every tool call is counted, and the ones that never fire are named so you can remove them.
 
 ## Install
