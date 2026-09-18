@@ -1,0 +1,4 @@
+# cordis patch for dsh-tool-stats
+insert:
+  - id: dsh-tool-stats
+    from: ./lib/index.js

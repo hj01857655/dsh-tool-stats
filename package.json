@@ -1,0 +1,45 @@
+{
+  "name": "dsh-tool-stats",
+  "version": "0.1.0",
+  "description": "Every tool call is counted, and the ones that never fire are named so you can remove them.",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": { "dsh-tool-stats": "lib/bin.js" },
+  "exports": {
+    ".": { "types": "./lib/index.d.ts", "default": "./lib/index.js" },
+    "./client": { "types": "./lib/client.d.ts", "default": "./lib/stats.web.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["lib", "cordis.patch.yml", "README.md", "CHANGELOG.md"],
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "tools", "analytics", "usage"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "inject": ["@deepseek-ai/dsh-client-ui-settings", "@deepseek-ai/dsh-client-connection"]
+    }
+  },
+  "license": "MIT",
+  "author": "hj01857655",
+  "repository": { "type": "git", "url": "git+https://github.com/hj01857655/dsh-tool-stats.git" },
+  "bugs": { "url": "https://github.com/hj01857655/dsh-tool-stats/issues" },
+  "homepage": "https://github.com/hj01857655/dsh-tool-stats#readme",
+  "engines": { "node": ">=20" },
+  "peerDependencies": { "@deepseek-ai/cordis": "^4.0.1" },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@types/node": "^22.20.3",
+    "@types/react": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^5.6.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/bundle-client.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json",
+    "test": "tsc -p tsconfig.json && node --test tests/*.test.mjs",
+    "prepublishOnly": "npm run build && npm test"
+  }
+}
