@@ -2,3 +2,8 @@ node_modules/
 lib/
 .toolstats/
 *.tgz
+
+# Never commit compiled output next to its source: a misconfigured tsc run used
+# to emit src/client/*.tsx into lib/ and stray modules into src/.
+src/**/*.js
+src/**/*.d.ts
