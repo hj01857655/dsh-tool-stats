@@ -1,20 +1,42 @@
 {
   "name": "dsh-tool-stats",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Every tool call is counted, and the ones that never fire are named so you can remove them.",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "bin": { "dsh-tool-stats": "lib/bin.js" },
+  "bin": {
+    "dsh-tool-stats": "lib/bin.js"
+  },
   "exports": {
-    ".": { "types": "./lib/index.d.ts", "default": "./lib/index.js" },
-    "./client": { "types": "./lib/client/index.d.ts", "default": "./lib/stats.web.js" },
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/client/index.d.ts",
+      "default": "./lib/stats.web.js"
+    },
     "./package.json": "./package.json"
   },
-  "files": ["lib", "cordis.patch.yml", "README.md", "CHANGELOG.md"],
-  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "tools", "analytics", "usage"],
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "tools",
+    "analytics",
+    "usage"
+  ],
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "inject": [
@@ -26,11 +48,20 @@
   },
   "license": "MIT",
   "author": "hj01857655",
-  "repository": { "type": "git", "url": "git+https://github.com/hj01857655/dsh-tool-stats.git" },
-  "bugs": { "url": "https://github.com/hj01857655/dsh-tool-stats/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hj01857655/dsh-tool-stats.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hj01857655/dsh-tool-stats/issues"
+  },
   "homepage": "https://github.com/hj01857655/dsh-tool-stats#readme",
-  "engines": { "node": ">=20" },
-  "peerDependencies": { "@deepseek-ai/cordis": "^4.0.1" },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",
     "@types/node": "^22.20.3",
