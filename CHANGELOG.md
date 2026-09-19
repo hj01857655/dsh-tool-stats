@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.1
+
+**Fixed: the previous release only covered `ui.tsx`.**
+
+The 0.5.0 fix replaced the invented tokens in `ui.tsx` but missed
+`view.tsx`, which still read `--error`, `--warning`, `--success` and
+`--accent` with hardcoded fallbacks. dsh defines none of those, so the
+fallbacks applied in every theme.
+
+Fixed here, 17 sites across the seven plugin panels:
+
+- `var(--error, #e53935)` → `var(--dsw-alias-state-error-primary)`
+- `var(--warning, #ed6c02)` → `var(--dsw-alias-state-warn-primary)`
+- `var(--success, #2e7d32)` → `var(--dsw-alias-state-success-primary)`
+- `var(--accent, #4B8BBE)` → `var(--dsw-alias-brand-primary)`
+
+Also replaced literal colours in the same files (alert card tints, dimmed text,
+code-block background) with the matching dsh tokens.
+
+The guard test now scans **every `.ts`/`.tsx` under `src/client/`** instead of
+only `ui.tsx` — that narrow scope is exactly how these 17 sites slipped through.
+An added assertion fails if `view.tsx` stops being scanned.
+
 ## 0.5.0
 
 **Fixed: panels did not follow the host theme.**

@@ -1,6 +1,6 @@
 {
   "name": "dsh-tool-stats",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Every tool call is counted, and the ones that never fire are named so you can remove them.",
   "type": "module",
   "main": "lib/index.js",

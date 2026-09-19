@@ -1,37 +1,48 @@
 /**
- * Guards the panel's host-theme token names.
+ * Guards the panel's host-theme token names, across the whole client half.
  *
- * ui.tsx used to read invented custom properties — `--accent`, `--border`,
- * `--bg-primary`, `--text-primary` and friends. dsh defines none of them, so the
- * hardcoded fallbacks applied in every theme: each panel rendered its own fixed
- * palette instead of following the host, and the modal and input surfaces stayed
- * white in dark mode.
+ * An earlier version of this guard only read `ui.tsx`, so the invented tokens
+ * in `view.tsx` — `--error`, `--warning`, `--success`, `--accent` — sailed past
+ * it. dsh defines none of those, so their hardcoded fallbacks applied in every
+ * theme and the panels rendered fixed colors instead of following the host.
  *
- * This test fails if an unverified name reappears, or if a token is read with a
- * hardcoded fallback — the fallback is what made the mistake invisible.
+ * This version scans every `.ts`/`.tsx` file under `src/client/` and fails on:
+ *   - a custom property that is not a real dsh token
+ *   - any of the known invented names coming back
+ *   - a `var(--token, fallback)` hardcoded fallback, which hides a missing token
  */
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const source = readFileSync(join(here, '..', 'src', 'client', 'ui.tsx'), 'utf8')
+const clientDir = join(here, '..', 'src', 'client')
+
+const sources = readdirSync(clientDir)
+  .filter((f) => /\.(ts|tsx)$/.test(f))
+  .map((f) => ({ file: f, text: readFileSync(join(clientDir, f), 'utf8') }))
 
 /** Custom properties confirmed present in dsh's shipped stylesheets. */
 const VERIFIED = new Set([
+  '--dsh-content-font-size',
   '--dsw-alias-bg-layer-1',
   '--dsw-alias-bg-layer-2',
   '--dsw-alias-bg-mask-1',
   '--dsw-alias-border-l2',
   '--dsw-alias-brand-primary',
+  '--dsw-alias-button-primary-fill',
   '--dsw-alias-button-primary-hover',
   '--dsw-alias-interactive-bg-hover',
+  '--dsw-alias-interactive-bg-hover-accent',
+  '--dsw-alias-label-dimmed',
   '--dsw-alias-label-primary',
   '--dsw-alias-label-primary-inverted',
   '--dsw-alias-label-tertiary',
+  '--dsw-alias-link',
+  '--dsw-alias-state-business-primary',
   '--dsw-alias-state-business-tertiary',
   '--dsw-alias-state-error-primary',
   '--dsw-alias-state-error-secondary',
@@ -41,6 +52,8 @@ const VERIFIED = new Set([
   '--dsw-alias-state-warn-tertiary',
   '--dsw-elevation-panel',
   '--dsw-elevation-prominent',
+  '--dsw-font-family',
+  '--dsw-font-mono',
 ])
 
 /** Names an earlier version invented; they must never come back. */
@@ -62,23 +75,40 @@ function variableNames(text) {
   return [...new Set([...text.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]))].sort()
 }
 
-test('every custom property read by ui.tsx is a verified dsh token', () => {
-  const unverified = variableNames(source).filter((n) => !VERIFIED.has(n))
-  assert.deepEqual(
-    unverified, [],
-    `unverified custom properties in ui.tsx: ${unverified.join(', ')}`,
+test('the guard actually sees the client sources', () => {
+  assert.ok(sources.length > 0, 'no .ts/.tsx found under src/client')
+  assert.ok(
+    sources.some((s) => s.file === 'view.tsx'),
+    'view.tsx is not being scanned — the gap that let --error through',
   )
 })
 
+test('every custom property read by the client half is a verified dsh token', () => {
+  const unverified = []
+  for (const { file, text } of sources) {
+    for (const name of variableNames(text)) {
+      if (!VERIFIED.has(name)) unverified.push(`${file}:${name}`)
+    }
+  }
+  assert.deepEqual(unverified, [], `unverified custom properties: ${unverified.join(', ')}`)
+})
+
 test('no invented token name comes back', () => {
-  const present = variableNames(source).filter((n) => INVENTED.includes(n))
+  const present = []
+  for (const { file, text } of sources) {
+    for (const name of variableNames(text)) {
+      if (INVENTED.includes(name)) present.push(`${file}:${name}`)
+    }
+  }
   assert.deepEqual(present, [], `invented tokens reappeared: ${present.join(', ')}`)
 })
 
 test('no token is read with a hardcoded fallback', () => {
   const offenders = []
-  for (const match of source.matchAll(/var\(\s*(--[\w-]+)\s*,/g)) {
-    offenders.push(match[1])
+  for (const { file, text } of sources) {
+    for (const match of text.matchAll(/var\(\s*(--[\w-]+)\s*,/g)) {
+      offenders.push(`${file}:${match[1]}`)
+    }
   }
   assert.deepEqual(
     offenders, [],

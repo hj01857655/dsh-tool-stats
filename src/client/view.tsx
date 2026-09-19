@@ -88,7 +88,7 @@ function ToolStatsPanelInner({ t }: PanelProps): ReactNode {
     </header>
   )
 
-  if (error !== null) return <div style={{ maxWidth: 820 }}>{header}<Card><p role="alert" style={{ margin: 0, fontSize: 13, color: 'var(--error, #e53935)' }}>{t('failed')}: {error}</p></Card></div>
+  if (error !== null) return <div style={{ maxWidth: 820 }}>{header}<Card><p role="alert" style={{ margin: 0, fontSize: 13, color: 'var(--dsw-alias-state-error-primary)' }}>{t('failed')}: {error}</p></Card></div>
   if (payload === null) return <div style={{ maxWidth: 820 }}>{header}<div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner size={28} /></div></div>
 
   const o = payload.overview
@@ -99,7 +99,7 @@ function ToolStatsPanelInner({ t }: PanelProps): ReactNode {
       {payload.alerts.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {payload.alerts.map((a, i) => (
-            <Card key={i} style={{ borderColor: a.level === 'error' ? 'var(--error, #e53935)' : 'var(--warning, #ed6c02)' }}>
+            <Card key={i} style={{ borderColor: a.level === 'error' ? 'var(--dsw-alias-state-error-primary)' : 'var(--dsw-alias-state-warn-primary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Badge color={a.level === 'error' ? 'error' : 'warning'}>{a.level === 'error' ? '🔴' : '🟡'}</Badge>
                 <strong>{a.tool}</strong><span style={{ fontSize: 12 }}>{a.message}</span>
@@ -111,7 +111,7 @@ function ToolStatsPanelInner({ t }: PanelProps): ReactNode {
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <StatCard value={o.totalCalls} label={t('totalCalls')} />
-        <StatCard value={o.totalFailures} label={t('totalFailures')} color={o.totalFailures > 0 ? 'var(--error, #e53935)' : undefined as unknown as string} />
+        <StatCard value={o.totalFailures} label={t('totalFailures')} color={o.totalFailures > 0 ? 'var(--dsw-alias-state-error-primary)' : undefined as unknown as string} />
         <StatCard value={`${Math.round(o.overallFailureRate * 100)}%`} label={t('failRate')} />
         <StatCard value={o.activeSessions} label={t('sessions')} />
         <StatCard value={o.avgLatencyMs} unit="ms" label={t('avgLatency')} />
@@ -128,7 +128,7 @@ function ToolStatsPanelInner({ t }: PanelProps): ReactNode {
                   <tr key={row.tool} style={tableStyles.clickRow} onClick={() => setToolModal(row.tool)}>
                     <td style={tableStyles.td}><code style={{ fontSize: 11 }}>{row.tool}</code></td>
                     <td style={tableStyles.td}>{row.invocations}</td>
-                    <td style={{ ...tableStyles.td, color: row.failureRate > 0.3 ? 'var(--error, #e53935)' : undefined }}>{Math.round(row.failureRate * 100)}%</td>
+                    <td style={{ ...tableStyles.td, color: row.failureRate > 0.3 ? 'var(--dsw-alias-state-error-primary)' : undefined }}>{Math.round(row.failureRate * 100)}%</td>
                     <td style={tableStyles.td}>{row.p50Latency}ms</td>
                     <td style={tableStyles.td}>{row.p95Latency}ms</td>
                   </tr>
