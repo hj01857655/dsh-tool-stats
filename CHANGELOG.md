@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.5.0
+
+**Fixed: panels did not follow the host theme.**
+
+ui.tsx read invented custom properties — `--accent`, `--border`, `--bg-primary`,
+`--text-primary` and friends. dsh defines none of them, so the hardcoded
+fallbacks applied in every theme: each panel rendered its own fixed palette
+instead of following the host.
+
+The visible symptom was `surface: 'var(--bg-primary, #fff)'` on the modal,
+input, select and textarea backgrounds — **white panels in dark mode**, with text
+in the host's near-white label color.
+
+Every name is now a real dsh token, pinned in `tests/ui-tokens.test.mjs`:
+
+- accent → `--dsw-alias-brand-primary`
+- surfaces → `--dsw-alias-bg-layer-1` / `-2`
+- border → `--dsw-alias-border-l2`
+- text / muted → `--dsw-alias-label-primary` / `--dsw-alias-label-tertiary`
+- state colors → `--dsw-alias-state-*-primary` with `-tertiary` / `-secondary` tints
+- modal scrim → `--dsw-alias-bg-mask-1`
+- shadows → `--dsw-elevation-panel` / `--dsw-elevation-prominent`
+
+`#fff` on the primary button became `--dsw-alias-label-primary-inverted`: dsh's
+brand color is near-black in light mode and near-white in dark, so the literal
+white would have disappeared against the fill.
+
+Fallbacks are gone on purpose. If a token were ever missing, the declaration
+becomes invalid at computed-value time and the property inherits, which degrades
+gracefully — a hardcoded fallback instead bakes in a color that is wrong in one
+of the two themes. The guard test fails on any fallback for exactly that reason.
+
 ## 0.2.0
 
 Ecosystem sync: every plugin in this suite shares one version, so a version number

@@ -25,18 +25,36 @@ import type {
 } from 'react'
 
 // ─── Theme tokens ──────────────────────────────────────────────
+/**
+ * Host theme tokens.
+ *
+ * Every name here is a real dsh token, read out of the shipped stylesheets
+ * (`@deepseek-ai/dsh-client-ui-theme`), which define them on `body`. An earlier
+ * version used invented names — `--accent`, `--border`, `--bg-primary`,
+ * `--text-primary` and friends — that dsh does not define at all. The
+ * hardcoded fallbacks then applied in every theme, so each panel rendered its
+ * own fixed palette instead of following the host, and the modal and input
+ * surfaces stayed white in dark mode.
+ *
+ * No fallbacks on purpose: if a name were ever missing, the declaration becomes
+ * invalid at computed-value time and the property inherits, which degrades
+ * gracefully, whereas a hardcoded fallback bakes in a color that is wrong in one
+ * of the two themes. `tests/ui-tokens.test.mjs` enforces the name list.
+ */
 const T = {
-  accent: 'var(--accent, #4B8BBE)',
-  accentHover: 'var(--accent-hover, #3a6f9e)',
-  error: 'var(--error, #e53935)',
-  success: 'var(--success, #2e7d32)',
-  warning: 'var(--warning, #ed6c02)',
-  bg: 'var(--bg-secondary, rgba(128,128,128,0.04))',
-  bgHover: 'var(--bg-tertiary, rgba(128,128,128,0.08))',
-  border: 'var(--border, rgba(128,128,128,0.2))',
-  text: 'var(--text-primary, inherit)',
-  muted: 'var(--text-secondary, rgba(128,128,128,0.65))',
-  surface: 'var(--bg-primary, #fff)',
+  accent: 'var(--dsw-alias-brand-primary)',
+  accentHover: 'var(--dsw-alias-button-primary-hover)',
+  inverted: 'var(--dsw-alias-label-primary-inverted)',
+  error: 'var(--dsw-alias-state-error-primary)',
+  success: 'var(--dsw-alias-state-success-primary)',
+  warning: 'var(--dsw-alias-state-warn-primary)',
+  bg: 'var(--dsw-alias-bg-layer-2)',
+  bgHover: 'var(--dsw-alias-interactive-bg-hover)',
+  border: 'var(--dsw-alias-border-l2)',
+  text: 'var(--dsw-alias-label-primary)',
+  muted: 'var(--dsw-alias-label-tertiary)',
+  surface: 'var(--dsw-alias-bg-layer-1)',
+  mask: 'var(--dsw-alias-bg-mask-1)',
 }
 
 // ─── Style injection (once) ────────────────────────────────────
@@ -90,7 +108,7 @@ export function Modal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0,0,0,0.45)',
+        background: T.mask,
         backdropFilter: 'blur(3px)',
         WebkitBackdropFilter: 'blur(3px)',
       }}
@@ -101,7 +119,7 @@ export function Modal({
         style={{
           background: T.surface,
           borderRadius: 14,
-          boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+          boxShadow: 'var(--dsw-elevation-prominent)',
           width: `min(92vw, ${width}px)`,
           maxHeight: '85vh',
           display: 'flex',
@@ -230,7 +248,7 @@ export function Button({
     fontFamily: 'inherit',
   }
   const variants: Record<string, CSSProperties> = {
-    primary: { background: T.accent, color: '#fff' },
+    primary: { background: T.accent, color: T.inverted },
     secondary: {
       background: T.bg,
       color: T.text,
@@ -342,11 +360,11 @@ export function Badge({
   color?: 'default' | 'success' | 'error' | 'warning' | 'info'
 }): ReactNode {
   const colors: Record<string, { bg: string; fg: string }> = {
-    default: { bg: 'rgba(128,128,128,0.12)', fg: T.muted },
-    success: { bg: 'rgba(46,125,50,0.12)', fg: T.success },
-    error: { bg: 'rgba(229,57,53,0.12)', fg: T.error },
-    warning: { bg: 'rgba(245,124,0,0.12)', fg: T.warning },
-    info: { bg: 'rgba(75,139,190,0.12)', fg: T.accent },
+    default: { bg: T.bgHover, fg: T.muted },
+    success: { bg: 'var(--dsw-alias-state-success-tertiary)', fg: T.success },
+    error: { bg: 'var(--dsw-alias-state-error-secondary)', fg: T.error },
+    warning: { bg: 'var(--dsw-alias-state-warn-tertiary)', fg: T.warning },
+    info: { bg: 'var(--dsw-alias-state-business-tertiary)', fg: T.accent },
   }
   const c = colors[color]
   return (
@@ -491,8 +509,8 @@ export function ToastProvider({ children }: { children: ReactNode }): ReactNode 
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: 500,
-                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-                color: '#fff',
+                boxShadow: 'var(--dsw-elevation-panel)',
+                color: T.inverted,
                 background:
                   t.type === 'success'
                     ? T.success
@@ -611,7 +629,7 @@ export const tableStyles = {
   td: {
     padding: '8px 12px 8px 0',
     fontSize: 13 as const,
-    borderBottom: '1px solid rgba(128,128,128,0.08)',
+    borderBottom: `1px solid ${T.border}`,
   },
   clickRow: { cursor: 'pointer' as const },
 }
@@ -636,7 +654,7 @@ export function CodeBlock({
         overflow: 'auto',
         padding: 10,
         borderRadius: 7,
-        background: 'rgba(128,128,128,0.06)',
+        background: T.bg,
         border: `1px solid ${T.border}`,
         margin: 0,
         ...style,
@@ -662,7 +680,7 @@ export function ProgressBar({
       style={{
         width: '100%',
         height,
-        background: 'rgba(128,128,128,0.12)',
+        background: T.bgHover,
         borderRadius: 5,
         overflow: 'hidden',
         position: 'relative',
