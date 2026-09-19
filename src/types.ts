@@ -39,9 +39,45 @@ export interface Recommendation {
   estimatedTokenSavings?: number;
 }
 
+export interface TimeRange {
+  from?: number | undefined;
+  to?: number | undefined;
+}
+
+export interface DailyToolTrend {
+  date: string; // YYYY-MM-DD
+  invocations: number;
+  failures: number;
+  avgLatencyMs: number;
+}
+
+export interface ToolDetail {
+  counter: ToolCounter;
+  recentCalls: ToolCall[];
+  trend: DailyToolTrend[];
+  errorBreakdown: { message: string; count: number }[];
+}
+
+export interface Alert {
+  level: 'warn' | 'error';
+  tool: string;
+  message: string;
+  timestamp: number;
+}
+
+export interface ToolStatsOverview {
+  totalCalls: number;
+  totalFailures: number;
+  overallFailureRate: number;
+  activeSessions: number;
+  avgLatencyMs: number;
+}
+
 export interface PanelPayload {
   tools: ToolCounter[];
   deadTools: DeadTool[];
   failingTools: FailingTool[];
   recommendations: Recommendation[];
+  overview: ToolStatsOverview;
+  alerts: Alert[];
 }

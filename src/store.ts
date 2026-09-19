@@ -28,4 +28,17 @@ export class StatsStore {
       .filter(Boolean)
       .map((line) => JSON.parse(line) as ToolCall);
   }
+
+  query(from?: number, to?: number): ToolCall[] {
+    const all = this.readAll();
+    return all.filter((c) => {
+      if (from && c.timestamp < from) return false;
+      if (to && c.timestamp > to) return false;
+      return true;
+    });
+  }
+
+  clear(): void {
+    if (existsSync(this.callsPath)) writeFileSync(this.callsPath, '', 'utf8');
+  }
 }

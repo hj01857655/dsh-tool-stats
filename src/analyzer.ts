@@ -1,4 +1,4 @@
-import type { ToolCall, ToolCounter, DeadTool, FailingTool, Recommendation } from './types.js';
+import type { ToolCall, ToolCounter, DeadTool, FailingTool, Recommendation, DailyToolTrend, ToolDetail, Alert, ToolStatsOverview } from './types.js';
 
 function percentile(sorted: number[], p: number): number {
   if (sorted.length === 0) return 0;
@@ -103,4 +103,87 @@ export function recommend(
     });
   }
   return recs;
+}
+
+/** Build daily trend for a specific tool. */
+export function dailyTrend(calls: ToolCall[], toolName: string): DailyToolTrend[] {
+  const toolCalls = calls.filter((c) => c.tool === toolName);
+  const byDay = new Map<string, { invocations: number; failures: number; totalLatency: number }>();
+
+  for (const c of toolCalls) {
+    const day = new Date(c.timestamp).toISOString().slice(0, 10);
+    const d = byDay.get(day) ?? { invocations: 0, failures: 0, totalLatency: 0 };
+    d.invocations++;
+    if (!c.success) d.failures++;
+    d.totalLatency += c.latencyMs;
+    byDay.set(day, d);
+  }
+
+  return [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, d]) => ({
+      date,
+      invocations: d.invocations,
+      failures: d.failures,
+      avgLatencyMs: Math.round(d.totalLatency / d.invocations),
+    }));
+}
+
+/** Detailed view for a single tool. */
+export function toolDetail(calls: ToolCall[], toolName: string): ToolDetail | null {
+  const counters = aggregate(calls);
+  const counter = counters.get(toolName);
+  if (!counter) return null;
+
+  const toolCalls = calls.filter((c) => c.tool === toolName);
+  const recentCalls = toolCalls.sort((a, b) => b.timestamp - a.timestamp).slice(0, 50);
+  const trend = dailyTrend(calls, toolName);
+
+  // Error breakdown
+  const errorCounts = new Map<string, number>();
+  for (const c of toolCalls) {
+    if (!c.success && c.errorMessage) {
+      const msg = c.errorMessage.slice(0, 100);
+      errorCounts.set(msg, (errorCounts.get(msg) ?? 0) + 1);
+    }
+  }
+  const errorBreakdown = [...errorCounts.entries()]
+    .map(([message, count]) => ({ message, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { counter, recentCalls, trend, errorBreakdown };
+}
+
+/** Generate alerts for failing tools. */
+export function generateAlerts(calls: ToolCall[], threshold = 0.5): Alert[] {
+  const alerts: Alert[] = [];
+  const counters = aggregate(calls);
+  const now = Date.now();
+
+  for (const c of counters.values()) {
+    if (c.invocations >= 5 && c.failureRate >= threshold) {
+      alerts.push({
+        level: c.failureRate >= 0.8 ? 'error' : 'warn',
+        tool: c.tool,
+        message: `Failure rate ${Math.round(c.failureRate * 100)}% (${c.failures}/${c.invocations})`,
+        timestamp: now,
+      });
+    }
+  }
+  return alerts;
+}
+
+/** Compute overview stats. */
+export function overview(calls: ToolCall[]): ToolStatsOverview {
+  const totalCalls = calls.length;
+  const totalFailures = calls.filter((c) => !c.success).length;
+  const sessions = new Set(calls.map((c) => c.sessionId));
+  const totalLatency = calls.reduce((s, c) => s + c.latencyMs, 0);
+  return {
+    totalCalls,
+    totalFailures,
+    overallFailureRate: totalCalls > 0 ? totalFailures / totalCalls : 0,
+    activeSessions: sessions.size,
+    avgLatencyMs: totalCalls > 0 ? Math.round(totalLatency / totalCalls) : 0,
+  };
 }

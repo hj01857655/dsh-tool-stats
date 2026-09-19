@@ -26,6 +26,16 @@ export const zh = {
   'loading': '正在加载…',
   'failed': '加载失败',
   'retry': '重试',
+  'totalCalls': '总调用',
+  'totalFailures': '总失败',
+  'sessions': '会话数',
+  'avgLatency': '平均延迟',
+  'export': '导出 CSV',
+  'clear': '清空',
+  'confirmClear': '确定清空所有记录？',
+  'errorBreakdown': '错误分类',
+  'recentCalls': '最近调用',
+  'sessionsUnused': '会话未用',
 }
 
 /** English dictionary, checked complete against the zh key set. */
@@ -43,4 +53,14 @@ export const en: typeof zh = {
   'loading': 'Loading…',
   'failed': 'Failed to load',
   'retry': 'Retry',
+  'totalCalls': 'Total Calls',
+  'totalFailures': 'Total Failures',
+  'sessions': 'Sessions',
+  'avgLatency': 'Avg Latency',
+  'export': 'Export CSV',
+  'clear': 'Clear',
+  'confirmClear': 'Clear all recorded data?',
+  'errorBreakdown': 'Error Breakdown',
+  'recentCalls': 'Recent Calls',
+  'sessionsUnused': 'sessions unused',
 }
