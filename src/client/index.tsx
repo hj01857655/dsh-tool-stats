@@ -41,7 +41,7 @@ export function apply(ctx: ClientContext): void {
     {
       name: 'settings.section',
       id: 'tool-stats',
-      order: 43,
+      order: 42,
       label: () => ctx.locale.bind(NS)('nav'),
       locale: NS,
     },
